@@ -198,6 +198,14 @@ var CF = {
   revScore:              'revenue__sales_score',
   finScore:              'financial_structure_score',
   teamScore:             'team__leadership_score',
+  topIssue1:             'top_issue_1',
+  topIssue2:             'top_issue_2',
+  topIssue3:             'top_issue_3',
+  topIssue4:             'top_issue_4',
+  topIssue5:             'top_issue_5',
+  topIssue6:             'top_issue_6',
+  topIssue7:             'top_issue_7',
+  topIssue8:             'top_issue_8',
 };
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -369,13 +377,20 @@ function calcDiagnosticData() {
   else if (sevPct <= 35) tier = 'MODERATE BLEED';
   else if (sevPct <= 60) tier = 'SEVERE BLEED';
   else tier = 'CRITICAL';
+  var issues = [];
+  factors.forEach(function(f, i) {
+    if (scores[i] > 0) issues.push({name: f.name, weighted: scores[i] * f.wt});
+  });
+  issues.sort(function(a, b) { return b.weighted - a.weighted; });
+  var topIssues = issues.slice(0, 8).map(function(iss) { return iss.name; });
   return {
     total: total, maxScore: maxScore, sevPct: sevPct, tier: tier,
     pillarScores: pillarScores, pillarMax: pillarMax,
     opsPct:  pillarMax[0] > 0 ? Math.round((pillarScores[0] / pillarMax[0]) * 100) : 0,
     revPct:  pillarMax[1] > 0 ? Math.round((pillarScores[1] / pillarMax[1]) * 100) : 0,
     finPct:  pillarMax[2] > 0 ? Math.round((pillarScores[2] / pillarMax[2]) * 100) : 0,
-    teamPct: pillarMax[3] > 0 ? Math.round((pillarScores[3] / pillarMax[3]) * 100) : 0
+    teamPct: pillarMax[3] > 0 ? Math.round((pillarScores[3] / pillarMax[3]) * 100) : 0,
+    topIssues: topIssues
   };
 }
 
@@ -466,7 +481,15 @@ function submitGate() {
     [CF.opsScore,              String(diag.pillarScores[0])],
     [CF.revScore,              String(diag.pillarScores[1])],
     [CF.finScore,              String(diag.pillarScores[2])],
-    [CF.teamScore,             String(diag.pillarScores[3])]
+    [CF.teamScore,             String(diag.pillarScores[3])],
+    [CF.topIssue1,             diag.topIssues[0] || ''],
+    [CF.topIssue2,             diag.topIssues[1] || ''],
+    [CF.topIssue3,             diag.topIssues[2] || ''],
+    [CF.topIssue4,             diag.topIssues[3] || ''],
+    [CF.topIssue5,             diag.topIssues[4] || ''],
+    [CF.topIssue6,             diag.topIssues[5] || ''],
+    [CF.topIssue7,             diag.topIssues[6] || ''],
+    [CF.topIssue8,             diag.topIssues[7] || '']
   ];
   cfMap.forEach(function(pair) { if (pair[0]) customFields.push({key: pair[0], value: pair[1]}); });
 
