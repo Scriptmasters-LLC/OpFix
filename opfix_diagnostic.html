@@ -152,6 +152,20 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
   .gate-card{padding:32px 20px}
   .gate-form-row{grid-template-columns:1fr}
 }
+
+/* Booking Modal */
+.booking-overlay{position:fixed;inset:0;z-index:400;background:rgba(6,15,31,.92);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:24px}
+.booking-modal{background:var(--white);border-radius:16px;width:100%;max-width:680px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 32px 80px rgba(0,0,0,.5)}
+.booking-modal-header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--gray-100);flex-shrink:0}
+.booking-modal-title{font-size:17px;font-weight:700}
+.booking-modal-close{width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--gray-400);cursor:pointer;transition:background .15s,color .15s;line-height:1}
+.booking-modal-close:hover{background:var(--gray-100);color:var(--navy)}
+.booking-modal-body{flex:1;overflow-y:auto;padding:0}
+.booking-modal-body iframe{display:block;width:100%;min-height:600px;border:none}
+@media(max-width:600px){
+  .booking-modal{max-height:95vh}
+  .booking-modal-body iframe{min-height:500px}
+}
 </style>
 </head>
 <body>
@@ -595,7 +609,7 @@ function renderResults() {
   html += '<div class="diag-cta-result">';
   html += '<h3>Ready to Fix What\u2019s Broken?</h3>';
   html += '<p>You\u2019ve seen the diagnosis. Now let us show you the prescription. Book a free 30-minute call and we\u2019ll walk through your results, prioritize your fixes, and map your 90-day plan.</p>';
-  html += '<a class="btn-primary" href="index.html#final-section">Book Your Free Diagnosis Call \u2192</a>';
+  html += '<button class="btn-primary" onclick="openBookingModal()">Book Your Free Diagnosis Call \u2192</button>';
   html += '</div>';
 
   html += '<div style="margin-top:24px;text-align:center">';
@@ -605,6 +619,55 @@ function renderResults() {
   app.innerHTML = html;
   app.scrollIntoView({behavior:'smooth',block:'start'});
 }
+
+window.openBookingModal = function() {
+  if (document.getElementById('booking-modal')) return;
+
+  var overlay = document.createElement('div');
+  overlay.className = 'booking-overlay';
+  overlay.id = 'booking-modal';
+  overlay.innerHTML =
+    '<div class="booking-modal">' +
+      '<div class="booking-modal-header">' +
+        '<span class="booking-modal-title">Book Your Free Diagnosis Call</span>' +
+        '<button class="booking-modal-close" onclick="closeBookingModal()" aria-label="Close">&times;</button>' +
+      '</div>' +
+      '<div class="booking-modal-body">' +
+        '<iframe src="https://crm.advisorhub.io/widget/booking/O5v0VLDLbAg4sVEgBHpG" scrolling="no" id="O5v0VLDLbAg4sVEgBHpG_booking"></iframe>' +
+      '</div>' +
+    '</div>';
+
+  document.body.appendChild(overlay);
+  document.body.style.overflow = 'hidden';
+
+  // Load the booking widget script once
+  if (!document.getElementById('ghl-booking-script')) {
+    var script = document.createElement('script');
+    script.id = 'ghl-booking-script';
+    script.src = 'https://crm.advisorhub.io/js/form_embed.js';
+    script.type = 'text/javascript';
+    document.body.appendChild(script);
+  }
+
+  // Close on backdrop click
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) closeBookingModal();
+  });
+
+  // Close on Escape
+  document.addEventListener('keydown', bookingEscHandler);
+};
+
+function bookingEscHandler(e) {
+  if (e.key === 'Escape') closeBookingModal();
+}
+
+window.closeBookingModal = function() {
+  var overlay = document.getElementById('booking-modal');
+  if (overlay) overlay.remove();
+  document.body.style.overflow = '';
+  document.removeEventListener('keydown', bookingEscHandler);
+};
 
 window.diagReset = function() { scores = new Array(40).fill(-1); currentPillar = 0; render(); app.scrollIntoView({behavior:'smooth',block:'start'}); };
 
