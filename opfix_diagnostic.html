@@ -184,9 +184,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 (function() {
 
 // ─── GHL INTEGRATION ──────────────────────────────────────────────────────────
-var GHL_LOCATION_ID = 'dqU7ufz23PNRXzYvkHZy';
-var GHL_TOKEN = 'pit-aa68d803-3e25-4dd2-a7c6-02de0bbc9284';
-var GHL_WORKFLOW_ID = '01f42c1c-6b3d-44da-8579-ec6ba05634ed';
+// Credentials live in Vercel environment variables — see /api/submit-diagnostic.js
 
 // GHL custom field keys (from your location's merge tags)
 var CF = {
@@ -503,45 +501,27 @@ function submitGate() {
   cfMap.forEach(function(pair) { if (pair[0]) customFields.push({key: pair[0], value: pair[1]}); });
 
   var payload = {
-    locationId:  GHL_LOCATION_ID,
-    firstName:   firstName,
-    lastName:    lastName,
-    email:       email,
-    phone:       phone,
-    companyName: company
+    firstName:    firstName,
+    lastName:     lastName,
+    email:        email,
+    phone:        phone,
+    companyName:  company,
+    customFields: customFields
   };
-  if (customFields.length > 0) payload.customFields = customFields;
 
   btnEl.disabled = true;
   btnEl.textContent = 'Submitting\u2026';
 
-  fetch('https://services.leadconnectorhq.com/contacts/upsert', {
+  fetch('/api/submit-diagnostic', {
     method: 'POST',
-    headers: {
-      'Authorization': 'Bearer ' + GHL_TOKEN,
-      'Content-Type': 'application/json',
-      'Version': '2021-07-28'
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   })
   .then(function(res) {
     if (!res.ok) {
-      return res.json().then(function(d) { throw new Error(d.message || 'Submission failed (status ' + res.status + ')'); });
+      return res.json().then(function(d) { throw new Error(d.error || 'Submission failed (status ' + res.status + ')'); });
     }
     return res.json();
-  })
-  .then(function(data) {
-    var contactId = data && data.contact && data.contact.id;
-    if (contactId && GHL_WORKFLOW_ID) {
-      return fetch('https://services.leadconnectorhq.com/contacts/' + contactId + '/workflow/' + GHL_WORKFLOW_ID, {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Bearer ' + GHL_TOKEN,
-          'Content-Type': 'application/json',
-          'Version': '2021-07-28'
-        }
-      }).catch(function() {}); // non-blocking — don't fail results if workflow enroll fails
-    }
   })
   .then(function() {
     var overlay = document.getElementById('contact-gate');
