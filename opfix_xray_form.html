@@ -795,9 +795,8 @@ function handleSubmit() {
     })),
   };
 
-  // ── GHL WEBHOOK — replace before deploying ──
-  const GHL_WEBHOOK = 'https://services.leadconnectorhq.com/hooks/dqU7ufz23PNRXzYvkHZy/webhook-trigger/c3207743-f6df-41ec-9f6f-30a26571cac4';
-  fetch(GHL_WEBHOOK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).catch(()=>{});
+  // POST to /api/submit-xray — upserts contact + enrolls in X-Ray workflow
+  fetch('/api/submit-xray',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).catch(()=>{});
 
   // Show success
   document.getElementById('submit-block').style.display = 'none';
