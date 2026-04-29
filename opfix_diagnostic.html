@@ -270,6 +270,9 @@ var CF = {
   // Top issues
   topIssue1:'top_issue_1',topIssue2:'top_issue_2',topIssue3:'top_issue_3',topIssue4:'top_issue_4',
   topIssue5:'top_issue_5',topIssue6:'top_issue_6',topIssue7:'top_issue_7',topIssue8:'top_issue_8',
+  // Per-factor severity scores, JSON-stringified [{id,score},…]. Read by the X-Ray
+  // form on prefill so users don't re-score 40 factors.
+  factorScores:          'diagnostic_factor_scores',
   // Version flag
   schemaVersion:         'diagnostic_schema_version',
   // Disqualification
@@ -875,6 +878,7 @@ function submitDiagnostic() {
     [CF.topIssue6,              diag.topIssueNames[5] || ''],
     [CF.topIssue7,              diag.topIssueNames[6] || ''],
     [CF.topIssue8,              diag.topIssueNames[7] || ''],
+    [CF.factorScores,           JSON.stringify(factors.map(function(f, i) { return {id: f.id, score: scores[i]}; }))],
     [CF.schemaVersion,          'v2']
   ];
 

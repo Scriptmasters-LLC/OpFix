@@ -884,6 +884,21 @@ async function prefillFromEmail(email) {
     document.getElementById('f-tech').value      = cf.current_tech_stack || '';
     document.getElementById('f-goal').value      = cf.client_goal || '';
 
+    // Apply diagnostic factor scores to the 40 severity buttons. Stored as
+    // a JSON array of {id, score} pairs. Silently skipped if missing or malformed.
+    if (cf.diagnostic_factor_scores) {
+      try {
+        var fs = JSON.parse(cf.diagnostic_factor_scores);
+        if (Array.isArray(fs)) {
+          fs.forEach(function(item) {
+            if (item && typeof item.id === 'number' && typeof item.score === 'number') {
+              setScore(item.id, item.score);
+            }
+          });
+        }
+      } catch (_) { /* silent */ }
+    }
+
     var banner = document.getElementById('prefill-banner');
     if (banner) banner.style.display = 'block';
     updateTotals();
