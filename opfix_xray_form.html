@@ -370,7 +370,6 @@ footer p{font-size:13px;color:var(--gray-400)}
         <div class="field-group"><label class="field-label">Email <span class="req">*</span></label><input class="field-input" id="f-email" type="email" placeholder="you@company.com" autocomplete="email"></div>
         <div class="field-group"><label class="field-label">Phone</label><input class="field-input" id="f-phone" type="tel" placeholder="(555) 000-0000" autocomplete="tel"></div>
         <div class="field-group"><label class="field-label">Industry <span class="req">*</span></label><input class="field-input" id="f-industry" type="text" placeholder="e.g. Home Services, SaaS, Restaurant"></div>
-        <div class="field-group"><label class="field-label">Year Started</label><input class="field-input" id="f-year" type="number" placeholder="e.g. 2018" min="1900" max="2030"></div>
         <div class="field-group"><label class="field-label">Annual Revenue (est.) <span class="req">*</span></label>
           <select class="field-select" id="f-revenue">
             <option value="" disabled selected>Select range</option>
@@ -378,7 +377,17 @@ footer p{font-size:13px;color:var(--gray-400)}
             <option>$1M – $2.5M</option><option>$2.5M – $5M</option><option>$5M – $10M</option><option>$10M+</option>
           </select>
         </div>
-        <div class="field-group"><label class="field-label">Employee Count</label><input class="field-input" id="f-employees" type="number" placeholder="Including owners" min="1"></div>
+        <div class="field-group"><label class="field-label">Employee Count</label>
+          <select class="field-select" id="f-employees">
+            <option value="">Select...</option>
+            <option value="1">Just me (1)</option>
+            <option value="2-5">2 - 5</option>
+            <option value="6-15">6 - 15</option>
+            <option value="16-30">16 - 30</option>
+            <option value="31-50">31 - 50</option>
+            <option value="50+">50+</option>
+          </select>
+        </div>
         <div class="field-group full"><label class="field-label">Primary Service / Product <span class="req">*</span></label><input class="field-input" id="f-service" type="text" placeholder="What do you sell? What do you deliver?"></div>
         <div class="field-group"><label class="field-label">Target Market</label><input class="field-input" id="f-market" type="text" placeholder="Who buys from you?"></div>
         <div class="field-group"><label class="field-label">Current Tech Stack / Tools</label><input class="field-input" id="f-tech" type="text" placeholder="e.g. Jobber, QuickBooks, Slack"></div>
@@ -762,9 +771,8 @@ function handleSubmit() {
     email:          document.getElementById('f-email').value.trim(),
     phone:          document.getElementById('f-phone').value.trim(),
     industry:       document.getElementById('f-industry').value.trim(),
-    year_started:   document.getElementById('f-year').value.trim(),
     annual_revenue: document.getElementById('f-revenue').value,
-    employee_count: document.getElementById('f-employees').value.trim(),
+    employee_count: document.getElementById('f-employees').value,
     primary_service:document.getElementById('f-service').value.trim(),
     target_market:  document.getElementById('f-market').value.trim(),
     tech_stack:     document.getElementById('f-tech').value.trim(),
@@ -869,7 +877,6 @@ async function prefillFromEmail(email) {
     document.getElementById('f-email').value     = c.email || '';
     document.getElementById('f-phone').value     = c.phone || '';
     document.getElementById('f-industry').value  = cf.business_type || cf.industry || '';
-    document.getElementById('f-year').value      = cf.year_started || '';
     matchRevenueOption(cf.annual_revenue_range);
     document.getElementById('f-employees').value = cf.employee_count || '';
     document.getElementById('f-service').value   = cf.primary_service || '';
