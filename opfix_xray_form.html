@@ -220,7 +220,6 @@ a{text-decoration:none;color:inherit}
 .sub-score{font-size:80px;font-weight:800;color:var(--white);letter-spacing:-4px;line-height:1;transition:color .3s;position:relative;z-index:1}
 .sub-score-max{font-size:28px;font-weight:500;color:var(--gray-500)}
 .sub-tier{margin:8px 0 4px;font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray-400);min-height:18px;position:relative;z-index:1;transition:color .3s}
-.sub-price{font-size:24px;font-weight:800;color:var(--accent);letter-spacing:-.5px;margin-bottom:36px;min-height:30px;position:relative;z-index:1}
 .btn-primary{background:var(--accent);color:var(--white);padding:16px 40px;border-radius:8px;font-size:16px;font-weight:700;border:none;cursor:pointer;transition:all .25s;letter-spacing:.3px;display:inline-flex;align-items:center;gap:8px;font-family:var(--font);position:relative;z-index:1}
 .btn-primary:hover{background:var(--accent-dark);transform:translateY(-2px);box-shadow:0 8px 30px rgba(233,69,96,.3)}
 .sub-note{margin-top:16px;font-size:13px;color:var(--gray-400);line-height:1.5;position:relative;z-index:1}
@@ -422,8 +421,7 @@ footer p{font-size:13px;color:var(--gray-400)}
     <p>Your diagnostic has been received. The OpFix team will follow up within 24 hours to schedule your diagnosis call.</p>
     <div class="success-meta">
       Score: <strong id="s-score">—</strong> / 240<br>
-      Tier: <strong id="s-tier">—</strong><br>
-      Engagement Investment: <strong id="s-price">—</strong>
+      Tier: <strong id="s-tier">—</strong>
     </div>
     <a href="index.html" style="display:inline-flex;align-items:center;gap:8px;background:var(--navy);color:var(--white);padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px">← Back to OpFix.io</a>
   </div>
@@ -433,7 +431,6 @@ footer p{font-size:13px;color:var(--gray-400)}
     <div class="sub-label">Total Diagnostic Score</div>
     <div class="sub-score" id="sub-score">0 <span class="sub-score-max">/ 240</span></div>
     <div class="sub-tier" id="sub-tier"></div>
-    <div class="sub-price" id="sub-price"></div>
     <button class="btn-primary" onclick="handleSubmit()">
       <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       Submit X-Ray Diagnostic
@@ -678,24 +675,19 @@ function updateTotals() {
   document.getElementById('st-progress').style.width = `${(total/240)*100}%`;
   document.getElementById('sub-score').innerHTML = `${total} <span class="sub-score-max">/ 240</span>`;
 
-  const {tier,price,cls} = getTier(total, totalImp);
+  const {tier,cls} = getTier(total);
   const tierEl = document.getElementById('st-tier');
   tierEl.textContent = tier; tierEl.className=`sticky-tier${cls?' '+cls:''}`;
   document.getElementById('sub-tier').textContent = tier&&tier!=='—'?`Tier: ${tier}`:'';
-  document.getElementById('sub-price').textContent = price;
 }
 
-function getTier(score, totalImp) {
+function getTier(score) {
   const scored = Object.keys(scores).length;
-  if (!scored||score===0) return {tier:'—',price:'',cls:''};
-  const eng = 15000+score*300;
-  const engFmt = `Engagement Investment: $${eng.toLocaleString()}`;
-  const oppFmt = totalImp ? ` · Est. Opportunity: ${fmtDollar(totalImp)}/yr` : '';
-  const fmt = engFmt + oppFmt;
-  if (score<=50)  return {tier:'Tune-Up',  price:fmt,cls:'tune-up'};
-  if (score<=120) return {tier:'Rebuild',  price:fmt,cls:'rebuild'};
-  if (score<=200) return {tier:'Overhaul', price:fmt,cls:'overhaul'};
-  return               {tier:'Emergency',price:fmt,cls:'emergency'};
+  if (!scored||score===0) return {tier:'—',cls:''};
+  if (score<=50)  return {tier:'Tune-Up',  cls:'tune-up'};
+  if (score<=120) return {tier:'Rebuild',  cls:'rebuild'};
+  if (score<=200) return {tier:'Overhaul', cls:'overhaul'};
+  return               {tier:'Emergency',cls:'emergency'};
 }
 
 // ─── SEVERITY TOGGLE ─────────────────────────────────────────────
@@ -752,7 +744,7 @@ function handleSubmit() {
   // Build payload
   const total = FACTORS.reduce((s,f)=>s+(scores[f.id]||0)*f.wt,0);
   const revenue = getRevenue();
-  const {tier} = getTier(total, 0);
+  const {tier} = getTier(total);
   const pt = {ops:0,rev:0,fin:0,team:0};
   const pImp = {ops:0,rev:0,fin:0,team:0};
   FACTORS.forEach(f=>{ pt[f.p]+=(scores[f.id]||0)*f.wt; pImp[f.p]+=calcImpact(scores[f.id]||0,revenue,f.wt); });
@@ -810,7 +802,6 @@ function handleSubmit() {
   document.getElementById('submit-block').style.display = 'none';
   document.getElementById('s-score').textContent = total;
   document.getElementById('s-tier').textContent = tier;
-  document.getElementById('s-price').textContent = `$${(15000+total*300).toLocaleString()}`;
   document.getElementById('success-wrap').classList.add('show');
 }
 
